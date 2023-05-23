@@ -1,11 +1,26 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3" lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Spring Security Example</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        a {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-<h1>Welcome to Index PAGE!</h1>
-
-
+    <h1>Welcome to Index PAGE!</h1>
+    <div>
+        <th:block th:each="msg : ${messages}">
+            <h1 th:text="${msg}"></h1>
+        </th:block>
+    </div>
+    <a th:href="@{/login}">USERS LIST</a>
 </body>
 </html>
