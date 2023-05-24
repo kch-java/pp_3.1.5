@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,10 +50,15 @@ public class UsersController {
     public String addUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "users";
-        } else {
-            userService.add(user);
-            return "redirect:/admin";
         }
+        if (userService.findByUsername(user.getUsername()) != null) {
+            bindingResult.addError(new FieldError("username", "username",
+                    String.format("User with Username \"'%s'\" is already exist / " +
+                            "Пользователь с именем \"'%s'\" уже существует", user.getUsername(), user.getUsername())));
+            return "users";
+        }
+        userService.add(user);
+        return "redirect:/admin";
     }
 
     @GetMapping("/admin/remove/{id}")
@@ -71,10 +77,15 @@ public class UsersController {
     public String updateUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "userupdate";
-        } else {
-            userService.update(user);
-            return "redirect:/admin";
         }
+        if (userService.findByUsername(user.getUsername()) != null) {
+            bindingResult.addError(new FieldError("username", "username",
+                    String.format("User with Username \"'%s'\" is already exist / " +
+                            "Пользователь с именем \"'%s'\" уже существует", user.getUsername(), user.getUsername())));
+            return "userupdate";
+        }
+        userService.update(user);
+        return "redirect:/admin";
     }
 
     @GetMapping("/user")
