@@ -43,13 +43,12 @@ public class User implements UserDetails {
 
     @NotEmpty(message = "Username cannot be empty / Имя пользователя не может быть пустым")
     @Size(min = 1, max = 15, message = "Username must contain from 1 to 15 characters / " +
-            "Username must contain from 1 to 15 characters")
+            "Имя пользователя должно содержать от 1 до 15 символов")
     @Column(name = "username", unique = true)
     private String username;
 
     @NotEmpty(message = "Password cannot be empty / Пароль не может быть пустым")
-    @Size(min = 20,message = "Password should be BCrypt encoded / Пароль должен быть зашифрован BCrypt " +
-            ": https://bcrypt-generator.com/")
+    @Size(min = 4,message = "Password must be more than 4 characters / Пароль должен быть больше 4 символов")
     @Column(name = "password")
     private String password;
 
@@ -71,6 +70,12 @@ public class User implements UserDetails {
         this.username = username;
         this.password = password;
         this.roles = roles;
+    }
+
+    public User(String username, String password, Collection<? extends GrantedAuthority> grantedAuthorities) {
+        this.username = username;
+        this.password = password;
+        this.roles = (Collection<Role>) grantedAuthorities;
     }
 
     public Long getId() {

@@ -13,4 +13,5 @@ public interface UserService {
     User findByUsername(String username);
     List<User> listUsers();
     void createAdmin();
+    void encodeUserPassword(User user);
 }

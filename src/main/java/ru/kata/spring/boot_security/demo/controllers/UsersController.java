@@ -77,15 +77,10 @@ public class UsersController {
     public String updateUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "userupdate";
+        } else {
+            userService.update(user);
+            return "redirect:/admin";
         }
-        if (userService.findByUsername(user.getUsername()) != null) {
-            bindingResult.addError(new FieldError("username", "username",
-                    String.format("User with Username \"'%s'\" is already exist / " +
-                            "Пользователь с именем \"'%s'\" уже существует", user.getUsername(), user.getUsername())));
-            return "userupdate";
-        }
-        userService.update(user);
-        return "redirect:/admin";
     }
 
     @GetMapping("/user")

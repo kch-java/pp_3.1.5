@@ -1,11 +1,13 @@
 package ru.kata.spring.boot_security.demo.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.dao.UserDao;
@@ -27,12 +29,14 @@ public class UserServiceImp implements UserService, UserDetailsService {
     private final UserDao userDao;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImp(UserDao userDao, UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImp(UserDao userDao, UserRepository userRepository, RoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -43,11 +47,13 @@ public class UserServiceImp implements UserService, UserDetailsService {
 
     @Override
     public void add(User user) {
+        encodeUserPassword(user);
         userDao.add(user);
     }
 
     @Override
     public void update(@Valid User user) {
+        encodeUserPassword(user);
         userDao.update(user);
     }
 
@@ -75,8 +81,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException(String.format("User '%s' not found", username));
         }
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                mapRolesToAuthorities(user.getRoles()));
+        return new User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
@@ -95,7 +100,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
 
             User admin = new User();
             admin.setUsername("admin");
-            admin.setPassword("$2a$12$IY24yfMLkXKQejAa0.JhHu/sEmRgFvmyE6XBQBUJ2Qgyl5bTafSKW"); /*admin*/
+            admin.setPassword(passwordEncoder.encode("admin"));
             admin.setFirstName("Admin");
             admin.setLastName("Admin");
             admin.setAge(33);
@@ -103,5 +108,10 @@ public class UserServiceImp implements UserService, UserDetailsService {
             admin.setRoles(adminRoles);
             userRepository.save(admin);
         }
+    }
+
+    @Override
+    public void encodeUserPassword(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 }
