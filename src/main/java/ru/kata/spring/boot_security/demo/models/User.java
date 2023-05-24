@@ -48,7 +48,7 @@ public class User implements UserDetails {
     private String username;
 
     @NotEmpty(message = "Password cannot be empty / Пароль не может быть пустым")
-    @Size(min = 4,message = "Password must be more than 4 characters / Пароль должен быть больше 4 символов")
+    @Size(min = 4,message = "Password must be at least 4 characters / Пароль должен быть не менее 4 символов")
     @Column(name = "password")
     private String password;
 
