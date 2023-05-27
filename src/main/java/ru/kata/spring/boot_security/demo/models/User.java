@@ -4,7 +4,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
 import java.util.Collection;
 
 @Entity
@@ -17,38 +16,20 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(name = "name")
-    @Pattern(regexp = "^[a-zA-Zа-яА-Я]{1,25}$",
-            message = "The name must contain from 1 to 25 characters " +
-                    "/ Имя должно содержать от 1 до 25 символов.")
     private String firstName;
 
     @Column(name = "last_name")
-    @Pattern(regexp = "^[a-zA-Zа-яА-Я]{1,25}$",
-            message = "The last name must contain from 1 to 25 characters " +
-                    "/ Фамилия должна содержать от 1 до 25 символов.")
     private String lastName;
 
     @Column(name = "age")
-    @NotNull(message = "Age must not be null / Возраст не должен быть равен null")
-    @Digits(integer = 3, fraction = 0, message = "Age should be / Возраст должен быть от 0 до 122")
-    @Min(value = 0, message = "Age should be / Возраст должен быть >= 0")
-    @Max(value = 122, message = "Age should be / Возраст должен быть < 123")
     private Integer age;
 
     @Column(name = "email")
-    @Pattern(regexp = "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@" +
-                     "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", message = "Enter a valid email address " +
-            "/ Введите действительный адрес электронной почты")
     private String email;
 
-    @NotEmpty(message = "Username cannot be empty / Имя пользователя не может быть пустым")
-    @Size(min = 1, max = 15, message = "Username must contain from 1 to 15 characters / " +
-            "Имя пользователя должно содержать от 1 до 15 символов")
     @Column(name = "username", unique = true)
     private String username;
 
-    @NotEmpty(message = "Password cannot be empty / Пароль не может быть пустым")
-    @Size(min = 4,message = "Password must be at least 4 characters / Пароль должен быть не менее 4 символов")
     @Column(name = "password")
     private String password;
 
@@ -56,7 +37,6 @@ public class User implements UserDetails {
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    @NotEmpty(message = "Select a role for the user / Выберите роль для пользователя")
     private Collection<Role> roles;
 
     public User() {

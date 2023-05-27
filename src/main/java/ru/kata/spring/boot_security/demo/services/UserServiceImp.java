@@ -16,7 +16,6 @@ import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -52,7 +51,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
     }
 
     @Override
-    public void update(@Valid User user) {
+    public void update(User user) {
         encodeUserPassword(user);
         userDao.update(user);
     }
@@ -91,8 +90,8 @@ public class UserServiceImp implements UserService, UserDetailsService {
     @Override
     public void createAdmin() {
         if (userRepository.findByUsername("admin") == null) {
-            Role roleAdmin = new Role("ROLE_ADMIN");
-            Role roleUser = new Role("ROLE_USER");
+            Role roleAdmin = new Role("ADMIN");
+            Role roleUser = new Role("USER");
             roleRepository.save(roleAdmin);
             roleRepository.save(roleUser);
             Collection<Role> adminRoles = new ArrayList<>();

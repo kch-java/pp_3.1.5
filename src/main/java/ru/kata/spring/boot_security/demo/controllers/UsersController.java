@@ -3,20 +3,13 @@ package ru.kata.spring.boot_security.demo.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
-import javax.validation.Valid;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class UsersController {
@@ -29,39 +22,31 @@ public class UsersController {
     }
 
     @GetMapping(value = "/")
-    public String printWelcome(ModelMap model) {
-        List<String> messages = new ArrayList<>();
-        messages.add("Hello!");
-        messages.add("I'm Spring Security - Spring Boot - MVC - Hibernate - CRUD application");
-        messages.add("kata.academy. Java pre-project. Task 3.1.3");
-        messages.add("Click on the link below to continue");
-        model.addAttribute("messages", messages);
-        return "index";
+    public String loginPage() {
+        return "loginPage";
     }
 
     @GetMapping("/admin")
-    public String listUsers(Model model){
-        model.addAttribute("user", new User());
+    public String listUsers(Model model, Principal principal){
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("user", userService.getUserById(user.getId()));
         model.addAttribute("listUsers", userService.listUsers());
-        return "users";
+        return "adminPanel";
     }
 
     @PostMapping("/admin/add")
-    public String addUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "users";
-        }
+    public String addUser(@ModelAttribute("user") User user, BindingResult bindingResult) {
         if (userService.findByUsername(user.getUsername()) != null) {
-            bindingResult.addError(new FieldError("username", "username",
+            bindingResult.addError(new FieldError("user", "username",
                     String.format("User with Username \"'%s'\" is already exist / " +
                             "Пользователь с именем \"'%s'\" уже существует", user.getUsername(), user.getUsername())));
-            return "users";
+            return "newUser";
         }
         userService.add(user);
         return "redirect:/admin";
     }
 
-    @GetMapping("/admin/remove/{id}")
+    @DeleteMapping("/admin/remove/{id}")
     public String removeUser(@PathVariable("id") Long id) {
         userService.remove(id);
         return "redirect:/admin";
@@ -70,23 +55,26 @@ public class UsersController {
     @GetMapping("/admin/edit/{id}")
     public String editUser(@PathVariable("id") Long id, Model model) {
         model.addAttribute("user", userService.getUserById(id));
-        return "userupdate";
+        return "newUser";
     }
 
     @PostMapping("/admin/{id}")
-    public String updateUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "userupdate";
-        } else {
-            userService.update(user);
-            return "redirect:/admin";
+    public String updateUser(@PathVariable Long id, @ModelAttribute("user") User user, BindingResult bindingResult) {
+        if (userService.findByUsername(user.getUsername()) != null
+                && !userService.getUserById(id).getUsername().equals(user.getUsername())) {
+            bindingResult.addError(new FieldError("user", "username",
+                    String.format("User with Username \"'%s'\" is already exist / " +
+                            "Пользователь с именем \"'%s'\" уже существует", user.getUsername(), user.getUsername())));
+            return "newUser";
         }
+        userService.update(user);
+        return "redirect:/admin";
     }
 
     @GetMapping("/user")
     public String getUser(Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         model.addAttribute("user", userService.getUserById(user.getId()));
-        return "user";
+        return "userPage";
     }
 }
