@@ -47,7 +47,12 @@ public class UsersController {
     }
 
     @DeleteMapping("/admin/remove/{id}")
-    public String removeUser(@PathVariable("id") Long id) {
+    public String removeUser(@PathVariable("id") Long id, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        if (user.getId().equals(id)) {
+            userService.remove(id);
+            return "redirect:/";
+        }
         userService.remove(id);
         return "redirect:/admin";
     }

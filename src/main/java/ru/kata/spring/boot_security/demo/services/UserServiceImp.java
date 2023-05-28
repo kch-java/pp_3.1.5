@@ -102,7 +102,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
             admin.setPassword(passwordEncoder.encode("admin"));
             admin.setFirstName("Admin");
             admin.setLastName("Admin");
-            admin.setAge(33);
+            admin.setAge((byte) 33);
             admin.setEmail("admin@admin.com");
             admin.setRoles(adminRoles);
             userRepository.save(admin);

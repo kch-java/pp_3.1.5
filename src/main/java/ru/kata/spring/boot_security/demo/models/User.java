@@ -22,7 +22,7 @@ public class User implements UserDetails {
     private String lastName;
 
     @Column(name = "age")
-    private Integer age;
+    private Byte age;
 
     @Column(name = "email")
     private String email;
@@ -42,7 +42,7 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String firstName, String lastName, Integer age, String email, String username, String password, Collection<Role> roles) {
+    public User(String firstName, String lastName, Byte age, String email, String username, String password, Collection<Role> roles) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
@@ -82,11 +82,11 @@ public class User implements UserDetails {
         this.lastName = lastName;
     }
 
-    public Integer getAge() {
+    public Byte getAge() {
         return age;
     }
 
-    public void setAge(Integer age) {
+    public void setAge(Byte age) {
         this.age = age;
     }
 
