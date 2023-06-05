@@ -1,17 +1,18 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.errors.ErrorResponse;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.security.Principal;
+import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api")
 public class UsersController {
 
     private final UserService userService;
@@ -21,65 +22,56 @@ public class UsersController {
         this.userService = userService;
     }
 
-    @GetMapping(value = "/")
-    public String loginPage() {
-        return "loginPage";
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> listUsers() {
+        return new ResponseEntity<>(userService.listUsers(), HttpStatus.OK);
     }
 
-    @GetMapping("/admin")
-    public String listUsers(Model model, Principal principal){
-        User user = userService.findByUsername(principal.getName());
-        model.addAttribute("user", userService.getUserById(user.getId()));
-        model.addAttribute("listUsers", userService.listUsers());
-        return "adminPanel";
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUser(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
     }
 
-    @PostMapping("/admin/add")
-    public String addUser(@ModelAttribute("user") User user, BindingResult bindingResult) {
+    @PostMapping("/users")
+    public ResponseEntity<?> addUser(@RequestBody User user) {
         if (userService.findByUsername(user.getUsername()) != null) {
-            bindingResult.addError(new FieldError("user", "username",
-                    String.format("User with Username \"'%s'\" is already exist / " +
-                            "Пользователь с именем \"'%s'\" уже существует", user.getUsername(), user.getUsername())));
-            return "newUser";
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse(
+                            String.format("User with Username '%s' is already exist / " +
+                                    "Пользователь с именем '%s' уже существует",
+                                    user.getUsername(), user.getUsername())
+                    ));
         }
         userService.add(user);
-        return "redirect:/admin";
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/admin/remove/{id}")
-    public String removeUser(@PathVariable("id") Long id, Principal principal) {
-        User user = userService.findByUsername(principal.getName());
-        if (user.getId().equals(id)) {
-            userService.remove(id);
-            return "redirect:/";
-        }
-        userService.remove(id);
-        return "redirect:/admin";
-    }
-
-    @GetMapping("/admin/edit/{id}")
-    public String editUser(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        return "newUser";
-    }
-
-    @PostMapping("/admin/{id}")
-    public String updateUser(@PathVariable Long id, @ModelAttribute("user") User user, BindingResult bindingResult) {
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
         if (userService.findByUsername(user.getUsername()) != null
                 && !userService.getUserById(id).getUsername().equals(user.getUsername())) {
-            bindingResult.addError(new FieldError("user", "username",
-                    String.format("User with Username \"'%s'\" is already exist / " +
-                            "Пользователь с именем \"'%s'\" уже существует", user.getUsername(), user.getUsername())));
-            return "newUser";
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse(
+                            String.format("User with Username '%s' is already exist / " +
+                                            "Пользователь с именем '%s' уже существует",
+                                    user.getUsername(), user.getUsername())
+                    ));
         }
         userService.update(user);
-        return "redirect:/admin";
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<HttpStatus> removeUser(@PathVariable("id") Long id) {
+        userService.remove(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/user")
-    public String getUser(Model model, Principal principal) {
+    public ResponseEntity<User> getUser(Principal principal) {
         User user = userService.findByUsername(principal.getName());
-        model.addAttribute("user", userService.getUserById(user.getId()));
-        return "userPage";
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

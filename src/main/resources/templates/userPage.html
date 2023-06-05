@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100"
       xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
@@ -11,36 +10,28 @@
     <title>User Page</title>
 </head>
 <body>
-
 <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
         <p class="navbar-brand text-white">
-            <b><span class="align-middle" th:text="${user.username}"></span></b>
+            <b><span class="align-middle" id="username"></span></b>
             <span class="align-middle">with roles:</span>
-            <span class="align-middle">
-        <th:block th:each="role,iterStat : ${user.roles}">
-            <span th:text="${role.roleName}"></span>
-            <span th:if="${!iterStat.last}"> </span>
-        </th:block>
-            </span>
+            <span class="align-middle" id="roles"></span>
         </p>
-        <form th:action="@{/logout}" method="post">
+        <form action="/logout" method="post">
             <button type="submit" class="btn btn-dark text-secondary">Logout</button>
         </form>
     </div>
 </nav>
 <div class="container-fluid h-100">
     <div class="row h-100">
-
         <div class="p-0 col-2">
             <div class="nav flex-column nav-pills pt-4" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <a class="nav-link" href="/admin" sec:authorize="hasAuthority('ADMIN')" role="tab"
                    aria-controls="v-pills-home" aria-selected="true">Admin</a>
-                <a class="nav-link active" href="/user" sec:authorize="(hasAnyAuthority('ADMIN', 'USER'))" role="tab"
+                <a class="nav-link active" href="#" sec:authorize="(hasAnyAuthority('ADMIN', 'USER'))" role="tab"
                    aria-controls="v-pills-profile" aria-selected="false">User</a>
             </div>
         </div>
-
         <div class="p-0 col-10 bg-light">
             <div class="tabs p-4">
                 <h1>User information-page</h1>
@@ -62,20 +53,7 @@
                                     <th>Role</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr>
-                                    <td th:text="${user.id}"></td>
-                                    <td th:text="${user.firstName}"></td>
-                                    <td th:text="${user.lastName}"></td>
-                                    <td th:text="${user.age}"></td>
-                                    <td th:text="${user.email}"></td>
-                                    <td th:text="${user.username}"></td>
-                                    <td>
-                                        <th:block th:each="role: ${user.roles}"
-                                                  th:text="${role.roleName} + ' '">
-                                        </th:block>
-                                    </td>
-                                </tr>
+                                <tbody id="tableBodyUser">
                                 </tbody>
                             </table>
                         </div>
@@ -85,9 +63,9 @@
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        integrity="sha384-JChaQxjtvTVBa4VGf+9FbYkWvF8Hk8Nz+Xo5jINqalEvc2PnIGmZvwk4bu0lhF5K"
         crossorigin="anonymous"></script>
+<script src="user.js"></script>
 </body>
 </html>

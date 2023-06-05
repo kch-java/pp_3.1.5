@@ -5,12 +5,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
@@ -19,20 +17,20 @@ import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class UserServiceImp implements UserService, UserDetailsService {
+public class UserServiceImp implements UserService {
 
-    private final UserDao userDao;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImp(UserDao userDao, UserRepository userRepository, RoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder) {
-        this.userDao = userDao;
+    public UserServiceImp(UserRepository userRepository, RoleRepository roleRepository,
+                          @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -47,30 +45,31 @@ public class UserServiceImp implements UserService, UserDetailsService {
     @Override
     public void add(User user) {
         encodeUserPassword(user);
-        userDao.add(user);
+        userRepository.save(user);
     }
 
     @Override
     public void update(User user) {
         encodeUserPassword(user);
-        userDao.update(user);
+        userRepository.save(user);
     }
 
     @Override
     public void remove(Long id) {
-        userDao.remove(id);
+        userRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
-        return userDao.getUserById(id);
+        Optional<User> user = userRepository.findById(id);
+        return user.orElse(new User());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> listUsers() {
-        return userDao.listUsers();
+        return userRepository.findAll();
     }
 
     @Override
